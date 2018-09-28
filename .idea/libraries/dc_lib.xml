@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="dc_lib">
+    <CLASSES>
+      <root url="file://F:/tim_resource/web/lib/dc_lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://F:/tim_resource/web/lib/dc_lib" />
+    </SOURCES>
+    <jarDirectory url="file://F:/tim_resource/web/lib/dc_lib" recursive="false" />
+    <jarDirectory url="file://F:/tim_resource/web/lib/dc_lib" recursive="false" type="SOURCES" />
+  </library>
+</component>

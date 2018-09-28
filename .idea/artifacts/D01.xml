@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="D01">
+    <output-path>F:/tim_projectSpace/artifacts/D01</output-path>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="D01" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="dc_lib" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="D01/web/Web" />
+    </root>
+  </artifact>
+</component>

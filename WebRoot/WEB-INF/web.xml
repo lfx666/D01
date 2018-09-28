@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance
+http://www.springmodules.org/schema/cache/springmodules-cache.xsd
+http://www.springmodules.org/schema/cache/springmodules-ehcache.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+  <display-name></display-name>
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/app_config/applicationContext*.xml</param-value>
+  </context-param>
+  <servlet>
+    <servlet-name>springmvc</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>/WEB-INF/app_config/applicationContext.xml</param-value>
+    </init-param>
+     <async-supported>true</async-supported>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>springmvc</servlet-name>
+    <url-pattern>/ws/websocket</url-pattern>
+    <url-pattern>/ws/sock</url-pattern>
+    <url-pattern>*.do</url-pattern>  
+  </servlet-mapping>
+ 
+ <servlet>
+  <servlet-name>CXFServlet</servlet-name>
+  <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+  <load-on-startup>3</load-on-startup>
+</servlet>
+
+<servlet-mapping>
+  <servlet-name>CXFServlet</servlet-name>
+  <url-pattern>/ws/*</url-pattern>
+</servlet-mapping>
+  <filter>
+    <filter-name>encode</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>forceEncoding</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>encode</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+ 
+  <context-param>
+    <param-name>log4jConfigLocation</param-name>
+    <param-value>classpath*:conf/log4j.properties</param-value>
+  </context-param>
+
+  <listener>
+    <listener-class>
+        org.springframework.web.context.request.RequestContextListener
+     </listener-class>
+  </listener>
+    <context-param>  
+        <param-name>webAppRootKey</param-name>   
+        <param-value>gms.root</param-value>  
+    </context-param>  
+    <listener>   
+        <listener-class>org.springframework.web.util.WebAppRootListener</listener-class>   
+    </listener>
+
+    <!-- session失效时间-->
+    <session-config>
+        <session-timeout>120</session-timeout><!--单位为分钟 -->
+    </session-config>
+
+  <welcome-file-list>
+    <welcome-file>benediction.html</welcome-file>
+  </welcome-file-list>
+</web-app>

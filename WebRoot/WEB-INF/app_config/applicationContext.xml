@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:util="http://www.springframework.org/schema/util"   
+	xsi:schemaLocation="  
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+		http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-4.3.xsd">
+
+	<context:component-scan base-package="com.dc.ws" />
+	<context:component-scan base-package="com.dc.f01.servlet" />
+	<context:component-scan base-package="com.dc.f01.interceptors" />
+	<context:component-scan base-package="com.dc.f01.action" />
+	<context:component-scan base-package="com.dc.f01.service" />
+	<context:component-scan base-package="com.dc.f01.dao" />
+
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<bean class="com.dc.f01.interceptors.UTF8StringHttpMessageConverter" />
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+    <!-- 解析器注册 -->  
+        <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">  
+            <property name="messageConverters">  
+                <list>  
+                    <ref bean="stringHttpMessageConverter"/>  
+                </list>  
+            </property>  
+        </bean>  
+        <!-- String类型解析器，允许直接返回String类型的消息 -->  
+        <bean id="stringHttpMessageConverter" class="org.springframework.http.converter.StringHttpMessageConverter"/>  
+        
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+    <context:property-placeholder location="classpath:jdbc.properties" />
+
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<property name="url" value="${db.url}"></property>
+		<!--<property name="driverClassName" value="${db.driverClassName}"></property>-->
+		<property name="username" value="${db.username}"></property>
+		<property name="password" value="${db.password}"></property>
+		<property name="initialSize" value="${db.initialSize}"></property>
+        <!-- 最小空闲连接数 -->
+        <property name="minIdle" value="${db.minIdle}"></property>
+        <!-- 最大并发连接数 -->
+        <property name="maxActive" value="${db.maxActive}"></property>
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="${db.timeBetweenEvictionRunsMillis}"></property>
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="${db.minEvictableIdleTimeMillis}"></property>
+        <!-- 用来检测连接是否有效的sql，要求是一个查询语句-->
+        <property name="validationQuery" value="${db.validationQuery}"></property>
+        <!-- 申请连接的时候检测 -->
+        <property name="testWhileIdle" value="${db.testWhileIdle}"></property>
+        <!-- 申请连接时执行validationQuery检测连接是否有效，配置为true会降低性能 -->
+        <property name="testOnBorrow" value="${db.testOnBorrow}"></property>
+        <!-- 归还连接时执行validationQuery检测连接是否有效，配置为true会降低性能  -->
+        <property name="testOnReturn" value="${db.testOnReturn}"></property>
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <property name="poolPreparedStatements" value="${db.poolPreparedStatements}"></property>
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="${db.maxPoolPreparedStatementPerConnectionSize}"></property>
+	</bean>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="do*" read-only="false" rollback-for="Exception" />
+			<tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="add*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="play*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="create*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="insert*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="fresh*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="update*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="merge*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="del*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="remove*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="put*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="use*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="getMySession" propagation="REQUIRED" read-only="true" rollback-for="Exception" />
+			<tx:method name="count*" propagation="REQUIRED" read-only="true" rollback-for="Exception" />
+			<tx:method name="find*" propagation="REQUIRED" read-only="true" rollback-for="Exception" />
+			<tx:method name="query*" propagation="REQUIRED" read-only="true" rollback-for="Exception" />
+			<tx:method name="get*" propagation="REQUIRED" read-only="true" rollback-for="Exception" />
+			<tx:method name="list*" propagation="REQUIRED" read-only="true" rollback-for="Exception" />
+			<tx:method name="refresh*" propagation="REQUIRED" read-only="true" rollback-for="Exception" />
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config proxy-target-class="true">
+		<aop:advisor pointcut="execution(* com.dc.f01..*.*(..))"
+			advice-ref="txAdvice" />
+	</aop:config>
+	
+   <!--  
+	<mvc:interceptors>
+	
+	  <mvc:interceptor>
+	   <mvc:mapping path="/**"/>
+		<mvc:exclude-mapping path="/fxWst/*"/>
+       <mvc:exclude-mapping path="/login/login.do"/>
+	   <bean class="com.dx.s91.filter.LoginInterceptor"></bean>
+	  </mvc:interceptor>
+
+	  <mvc:interceptor>
+         <mvc:mapping path = "/**" />
+		  <mvc:exclude-mapping path="/fxWst/*"/>
+         <mvc:exclude-mapping path="/login/login.do"/>
+         <bean class = "com.dx.s91.filter.TokenInterceptor"/>
+     </mvc:interceptor>
+     
+	</mvc:interceptors>
+	-->
+     
+	 
+	 
+	 
+</beans>

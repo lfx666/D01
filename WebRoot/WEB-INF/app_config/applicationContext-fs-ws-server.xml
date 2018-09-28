@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:util="http://www.springframework.org/schema/util"   
+	xsi:schemaLocation="  
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+		http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-4.3.xsd
+		http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+        http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
+         ">
+
+    <!--服务端ws超时时间设置
+    ConnectionTimeout - WebService以TCP连接为基础,这个属性可以理解为TCP握手时的时间设置,超过设置的时间就认为是连接超时.以毫秒为单位,默认是30000毫秒,即30秒。
+    ReceiveTimeout - 这个属性是发送WebService的请求后等待响应的时间,超过设置的时长就认为是响应超时.以毫秒为单位,默认是60000毫秒,即60秒.
+    -->
+     <import resource="classpath:META-INF/cxf/cxf.xml" />
+     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+    
+     <jaxws:endpoint id="wxWsService" implementor="com.dc.ws.WxWsServiceImpl" address="/wxWsService"/>
+     
+    <http-conf:conduit name="*.http-conduit">
+        <http-conf:client ConnectionTimeout="20000" ReceiveTimeout="1200000"/>
+    </http-conf:conduit>
+
+   <websocket:handlers allowed-origins="*">
+        <websocket:mapping path="/ws/websocket" handler="wsHandler" />
+         <websocket:handshake-interceptors>
+            <bean class="com.dc.f01.interceptors.HandshakeInterceptor"/>
+        </websocket:handshake-interceptors>
+    </websocket:handlers>
+    
+     <websocket:handlers>
+        <websocket:mapping path="/ws/sock" handler="wsHandler" />
+         <websocket:handshake-interceptors>
+            <bean class="com.dc.f01.interceptors.HandshakeInterceptor"/>
+        </websocket:handshake-interceptors>
+         <websocket:sockjs/>
+    </websocket:handlers>
+    
+     <bean id="wsHandler" class="com.dc.f01.interceptors.NoticeMessageHandler"/>
+     
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"  p:defaultEncoding="utf-8">
+    	<property name="maxUploadSize" value="2097152"/>
+    	<property name="maxInMemorySize" value="2097152" />
+    </bean>
+	 <bean id="springContextHolder" class="com.dc.f01.common.SpringContextHolder" lazy-init="false" />
+</beans>
